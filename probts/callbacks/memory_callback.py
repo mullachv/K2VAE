@@ -14,9 +14,12 @@ def byte2gb(x):
 class MemoryTrace:
     def __init__(self):
         gc.collect()
-        torch.cuda.empty_cache()
-        torch.cuda.reset_max_memory_allocated()  # reset the peak gauge to zero
-        self.begin = byte2gb(torch.cuda.memory_allocated())
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.reset_max_memory_allocated()  # reset the peak gauge to zero
+            self.begin = byte2gb(torch.cuda.memory_allocated())
+        else:
+            self.begin = 0
         self.process = psutil.Process()
         self.cpu_begin = byte2gb(self.cpu_mem_used())
         self.peak_monitoring = True
@@ -59,71 +62,67 @@ class MemoryTrace:
 
 class MemoryCallback(Callback):
     """
-        Trace the memory usage.
+    Trace the memory usage.
     """
+
     def __init__(self):
-        self.memory_summary = {
-            'train': {},
-            'val': {},
-            'test': {}
-        }
-    
+        self.memory_summary = {"train": {}, "val": {}, "test": {}}
+
     def update_memory_summary(self, key, memtrace):
         self.memory_summary[key] = {
             "mem_peak": max(memtrace.peak, self.memory_summary[key].get("mem_peak", 0)),
-            "max_reserved": max(memtrace.max_reserved, self.memory_summary[key].get("max_reserved", 0)),
-            "peak_active_gb": max(memtrace.peak_active_gb, self.memory_summary[key].get("peak_active_gb", 0)),
-            "cuda_malloc_retires": max(memtrace.cuda_malloc_retires, self.memory_summary[key].get("cuda_malloc_retires", 0)),
-            "cpu_total_peaked": max(memtrace.cpu_peaked + memtrace.cpu_begin, self.memory_summary[key].get("cpu_total_peaked", 0)),
+            "max_reserved": max(
+                memtrace.max_reserved, self.memory_summary[key].get("max_reserved", 0)
+            ),
+            "peak_active_gb": max(
+                memtrace.peak_active_gb,
+                self.memory_summary[key].get("peak_active_gb", 0),
+            ),
+            "cuda_malloc_retires": max(
+                memtrace.cuda_malloc_retires,
+                self.memory_summary[key].get("cuda_malloc_retires", 0),
+            ),
+            "cpu_total_peaked": max(
+                memtrace.cpu_peaked + memtrace.cpu_begin,
+                self.memory_summary[key].get("cpu_total_peaked", 0),
+            ),
         }
-    
+
     def on_train_epoch_start(
-        self,
-        trainer: "pl.Trainer",
-        pl_module: "pl.LightningModule"
+        self, trainer: "pl.Trainer", pl_module: "pl.LightningModule"
     ) -> None:
         """Called when the train epoch begins"""
         self.train_memtrace = MemoryTrace()
-    
+
     def on_train_epoch_end(
-        self,
-        trainer: "pl.Trainer",
-        pl_module: "pl.LightningModule"
+        self, trainer: "pl.Trainer", pl_module: "pl.LightningModule"
     ) -> None:
         """Called when the train epoch ends"""
         self.train_memtrace.__exit__()
-        self.update_memory_summary('train', self.train_memtrace)
+        self.update_memory_summary("train", self.train_memtrace)
 
     def on_validation_epoch_start(
-        self,
-        trainer: "pl.Trainer",
-        pl_module: "pl.LightningModule"
+        self, trainer: "pl.Trainer", pl_module: "pl.LightningModule"
     ) -> None:
         """Called when the validation epoch begins"""
         self.val_memtrace = MemoryTrace()
-    
+
     def on_validation_epoch_end(
-        self,
-        trainer: "pl.Trainer",
-        pl_module: "pl.LightningModule"
+        self, trainer: "pl.Trainer", pl_module: "pl.LightningModule"
     ) -> None:
         """Called when the validation epoch ends"""
         self.val_memtrace.__exit__()
-        self.update_memory_summary('val', self.val_memtrace)
-    
+        self.update_memory_summary("val", self.val_memtrace)
+
     def on_test_epoch_start(
-        self,
-        trainer: "pl.Trainer",
-        pl_module: "pl.LightningModule"
+        self, trainer: "pl.Trainer", pl_module: "pl.LightningModule"
     ) -> None:
         """Called when the test epoch begins"""
         self.test_memtrace = MemoryTrace()
-    
+
     def on_test_epoch_end(
-        self,
-        trainer: "pl.Trainer",
-        pl_module: "pl.LightningModule"
+        self, trainer: "pl.Trainer", pl_module: "pl.LightningModule"
     ) -> None:
         """Called when the test epoch ends"""
         self.test_memtrace.__exit__()
-        self.update_memory_summary('test', self.test_memtrace)
+        self.update_memory_summary("test", self.test_memtrace)
