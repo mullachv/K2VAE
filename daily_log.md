@@ -28,3 +28,37 @@
 - ✅ Model: PatchTST with 166K parameters
 - ✅ Running on CPU with context length 96, prediction length 96
 
+## 2025-10-20
+
+### Repository Setup for Reproducibility
+- Created comprehensive `Makefile` with setup/run/visualize commands
+- Generated `requirements.txt` from working conda environment
+- Created `environment.yml` for conda users
+- Set up dual support for both pip/venv and conda environments
+
+### Dependency Management Improvements
+- Generated `requirements.txt` using `pip freeze` from working k2vae environment
+- Cleaned up conda-specific packages (mkl-service, mkl, etc.) that aren't pip-compatible
+- Successfully tested `requirements.txt` in fresh virtual environment
+- Verified `pip install -e .` works correctly for editable package installation
+
+### Makefile Implementation
+- Added `make setup-pip` for pip/venv users
+- Added `make setup-conda` for conda users
+- Added `make run` for quick test runs
+- Added `make run-k2vae` for full K²VAE training
+- Added `make visualize` for results visualization
+- Added `make test` for installation verification
+- Added `make clean` for cleanup
+
+### Testing and Verification
+- ✅ Successfully tested `requirements.txt` in fresh `test_env`
+- ✅ Verified `import probts` works correctly
+- ✅ Confirmed `pip install -e .` creates proper editable installation
+- ✅ Repository now supports both pip and conda workflows independently
+
+### Next Steps
+- Test full pipeline with `make setup-pip` and `make run`
+- Generate `environment.yml` from conda environment
+- Test conda workflow with `make setup-conda`
+- Update README with clear setup instructions
