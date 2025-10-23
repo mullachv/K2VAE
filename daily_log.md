@@ -62,3 +62,36 @@
 - Generate `environment.yml` from conda environment
 - Test conda workflow with `make setup-conda`
 - Update README with clear setup instructions
+
+## 2025-10-22 (Evening)
+
+### Conda Environment Setup Completion
+- Successfully generated `environment.yml` from working conda environment
+- Resolved dependency conflicts (fsspec version compatibility with lightning)
+- Fixed conda activation issues in Makefile by switching to `conda run -n k2vae`
+- Successfully tested `make setup-conda` workflow
+
+### Environment Configuration
+- Created clean `environment.yml` with proper dependency versions
+- Removed problematic packages (k2vae==0.1.0, prefix paths) from environment file
+- Fixed fsspec version conflict: changed from `fsspec==2025.9.0` to `fsspec>=2021.06.0,<2025.0`
+- Updated Makefile to use `conda run -n k2vae` instead of `conda activate k2vae`
+
+### Dataset Management
+- Successfully downloaded and extracted all datasets (64.8MB total)
+- Verified dataset organization in `datasets/` directory
+- Confirmed automatic cleanup of temporary zip files
+
+### Final Conda Workflow
+- ✅ `make setup-conda` works completely
+- ✅ Environment creation successful
+- ✅ Package installation successful  
+- ✅ Dataset download successful
+- ✅ Renamed environment back to `k2vae` for consistency
+- ✅ Both pip and conda workflows now fully functional
+
+### Repository Status
+- ✅ **Complete dual support**: Both pip/venv and conda workflows working
+- ✅ **Reproducible setup**: One-command setup for both approaches
+- ✅ **Clean dependencies**: Proper version management for both environments
+- ✅ **Ready for distribution**: Repository is now easily cloneable and runnable

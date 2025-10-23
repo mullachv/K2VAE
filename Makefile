@@ -55,7 +55,7 @@ setup-conda:
 	conda env create -f environment.yml
 	@echo "📥 Downloading datasets..."
 	@if [ ! -d "datasets" ]; then mkdir -p datasets; fi
-	conda activate k2vae && python probts/utils/download_datasets.py --data_path ./datasets
+	conda run -n k2vae python probts/utils/download_datasets.py --data_path ./datasets
 	@echo "✅ K²VAE conda setup complete! Ready to run."
 	@echo "💡 Remember to run: conda activate k2vae"
 
